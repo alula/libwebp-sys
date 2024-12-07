@@ -51,6 +51,12 @@ fn setup_build(build: &mut cc::Build, include_dir: &PathBuf) {
     let target_cpu = target_cpu.as_deref().unwrap_or(&*target_arch);
     build.flag_if_supported(&format!("-march={}", target_cpu));
 
+    if target_arch == "wasm32" {
+        build.include("wasm-libcstub");
+        build.include(std::env::var_os("DEP_ALULA_WASM32_UNKNOWN_UNKNOWN_OPENBSD_LIBC_INCLUDE").unwrap());
+        println!("cargo:rustc-link-lib=wasm32-unknown-unknown-openbsd-libc");
+    }
+
     match target_arch.as_str() {
         "x86_64" | "i686" => {
             build.define("WEBP_HAVE_SSE2", Some("1"));
